@@ -152,14 +152,23 @@ function getGeocode(event_id,div,link) {
 
         if (div.className.indexOf("info_layout") != -1) {
             info_div = div;
+            s = div.getElementsByTagName('abbr')[0].title;
 
-            s = new Date(div.getElementsByTagName('abbr')[0].title);
+            // See http://stackoverflow.com/questions/3566125/problem-with-date-formats-in-javascript-with-different-browsers
+            // This hack is to make it work in all browsers.
+            s = new Date(s.replace(/\-/g,'\/').replace(/\+09:00/, '').replace(/[T|Z]/g,' '));
+
             start = s.toGcalFormat();
 
             console.log("start =" + start);
             // 終了が設定されていないイベントもある
             if (div.getElementsByTagName('abbr').length == 2) {
-                e = new Date(div.getElementsByTagName('abbr')[1].title);
+                e = div.getElementsByTagName('abbr')[1].title;
+
+                // See http://stackoverflow.com/questions/3566125/problem-with-date-formats-in-javascript-with-different-browsers
+                // This hack is to make it work in all browsers.
+                e = new Date(e.replace(/\-/g,'\/').replace(/\+09:00/, '').replace(/[T|Z]/g,' '));
+
                 end = e.toGcalFormat();
             }
             else {
