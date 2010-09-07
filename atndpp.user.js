@@ -11,6 +11,22 @@
  * @param lat 緯度
  * @param div htmlを追加するオブジェクト
  */
+
+Date.prototype.toUTCArray= function(){
+   var D= this;
+   return [D.getUTCFullYear(), D.getUTCMonth(), D.getUTCDate(), D.getUTCHours(), D.getUTCMinutes(), D.getUTCSeconds()];
+}
+
+Date.prototype.toGcalFormat= function(){
+   var tem, A= this.toUTCArray(), i= 0;
+   A[1]+= 1;
+   while(i++<7){
+       tem= A[i];
+       if(tem<10) A[i]= '0'+tem;
+   }
+   return A.splice(0, 3).join('')+'T'+A.join('')+'Z';
+}
+
 function getNearsideStation(lon,lat,div,link) {
 
     // 緯度経度から最寄り駅情報を取得
@@ -124,11 +140,9 @@ function getGeocode(event_id,div,link) {
     var title = title_div.getElementsByTagName("h1")[0].innerHTML;
     var info_div = null;
     des = des + title + '\n' + title_div.getElementsByTagName("p")[0].innerHTML;
-    des = des + '\n' + title_div.getElementsByTagName("a")[0].href;
-
-    var eventId = (title_div.getElementsByTagName('a')[0].href.match(/http:\/\/atnd\.org\/events\/(\d+)/i)||[])[1]||null;
-
-
+    //des = des + '\n' + title_div.getElementsByTagName("a")[0].href;
+    //var eventId = (title_div.getElementsByTagName('a')[0].href.match(/http:\/\/atnd\.org\/events\/(\d+)/i)||[])[1]||null;
+    var eventId = (document.URL.match(/http:\/\/atnd\.org\/events\/(\d+)/i)||[])[1]||null;
 
     var divs = document.getElementsByTagName('div');
     for (var i = 0; i < divs.length; i++) {
@@ -139,12 +153,14 @@ function getGeocode(event_id,div,link) {
         if (div.className.indexOf("info_layout") != -1) {
             info_div = div;
 
-            start = div.getElementsByTagName('abbr')[0].title;
+            s = new Date(div.getElementsByTagName('abbr')[0].title);
+            start = s.toGcalFormat();
 
             console.log("start =" + start);
             // 終了が設定されていないイベントもある
             if (div.getElementsByTagName('abbr').length == 2) {
-                end = div.getElementsByTagName('abbr')[1].title;
+                e = new Date(div.getElementsByTagName('abbr')[1].title);
+                end = e.toGcalFormat();
             }
             else {
                 // その場合googleカレンダーに起こられるので適当に設定
@@ -180,7 +196,8 @@ function getGeocode(event_id,div,link) {
     link.innerHTML = "<img src='http://www.google.com/calendar/images/ext/gc_button2.gif' border=0></a>";
 
     link.setAttribute('href',
-        'http://www.google.com/calendar/event?action=TEMPLATE&text=' + title
+//        'http://www.google.com/calendar/event?action=TEMPLATE&text=' + title
+        'https://www.google.com/calendar/hosted/champierre.com/event?action=TEMPLATE&text=' + title
          + "&dates=" + start + "/" + end  + ""
         + "&details=" + des + "&location=" + location + "&trp=false&sprop=&sprop=name") ;
 
